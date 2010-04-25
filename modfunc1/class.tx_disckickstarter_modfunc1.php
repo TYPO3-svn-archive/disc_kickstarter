@@ -22,10 +22,7 @@
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
 
-
 require_once(PATH_t3lib.'class.t3lib_extobjbase.php');
-
-
 
 /**
 * Module extension (addition to function menu) 'Clone Extension' for the 'disc_kickstarter' extension.
@@ -36,21 +33,6 @@ require_once(PATH_t3lib.'class.t3lib_extobjbase.php');
 */
 class tx_disckickstarter_modfunc1 extends t3lib_extobjbase {
 	
-	/**
-	* Returns the module menu
-	*
-	* @return    Array with menuitems
-	*/
-	
-	/*
-	function modMenu()    {
-		global $LANG;
-		
-		return Array (
-			"tx_disckickstarter_modfunc1_check" => "",
-                        );
-	}
-	*/
 	/**
 	* Main method of the module
 	*
@@ -63,8 +45,23 @@ class tx_disckickstarter_modfunc1 extends t3lib_extobjbase {
 		
 		
 		if (t3lib_div::_GP('submit')=='') {
+			
+			$extList = $this->getExtList();
+			
+			$option = '<option value="">Select:</option>';
+			foreach($extList AS $extItem){
+				$option .= '<option value="'.$extItem.'">'.$extItem.'</option>';
+			}
+			
+			
 			$content='<form>';
-			$content.='Actual Key:<input name="actualkey">';
+			$content.='<input type="hidden" name="SET[function]" value="tx_disckickstarter_modfunc1">';
+			$content.='<select name="actualkey">';
+			$content.=$option;
+			$content.='</select>';
+			
+			
+			
 			$content.='Copy to key:<input name="newkey">';
 			$content.='<input type="submit" name="submit" value="do it"></form>';
 			
@@ -75,8 +72,9 @@ class tx_disckickstarter_modfunc1 extends t3lib_extobjbase {
 		else {
 			$actualkey=t3lib_div::_GP('actualkey');
 			$newkey=t3lib_div::_GP('newkey');
-			if (strcmp($newkey,'') && strcmp($actualkey,'') && t3lib_extMgm::isLoaded($actualkey))	{
-				$from=t3lib_extMgm::extPath($actualkey);
+			if (strcmp($newkey,'') && strcmp($actualkey,''))	{
+				//$from=t3lib_extMgm::extPath($actualkey);
+				$from=PATH_site.'typo3conf/ext/'.$actualkey.'/';
 				$to=PATH_site.'typo3conf/ext/'.$newkey.'/';
 				$renames=array();
 				$renames['tx_'.str_replace('_','',$actualkey)]='tx_'.str_replace('_','',$newkey);
@@ -113,7 +111,10 @@ class tx_disckickstarter_modfunc1 extends t3lib_extobjbase {
 	}
 	
 	
-	
+	function getExtList(){
+		$extpath = PATH_site.'typo3conf/ext/';
+		return t3lib_div::get_dirs($extpath); 
+	}
 	
 	
 	function copyAllFilesWithRename($from,$to,$renames) {
