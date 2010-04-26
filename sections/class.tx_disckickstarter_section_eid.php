@@ -86,11 +86,11 @@ class tx_disckickstarter_section_eid extends tx_kickstarter_sectionbase {
 	*/
 	function render_extPart($k,$config,$extKey) {
 		
-		$WOP = '[cli]['.$k.']';
+		$WOP = '[eID]['.$k.']';
 		#$cliPath = t3lib_basicFileFunctions::cleanFileName($config['cName']);
-		$cliDir = 'cli'.$k;
+		$eIDDir = 'eid'.$k;
 		
-		$className = 'tx_'.$extKey.'_cli'.$k;
+		$className = 'tx_'.$extKey.'_eid'.$k;
 		
 		
 		
@@ -107,11 +107,11 @@ class tx_disckickstarter_section_eid extends tx_kickstarter_sectionbase {
 		#	);
 		
 		
-		//$file = $this->render_CLIClassFile($k,$config,$extKey);
-		$file = 'TEXT';
+		$file = $this->render_eIDClassFile($k,$config,$extKey);
+		//$file = 'eID file';
 		
 		$this->addFileToFileArray(
-			$cliDir.'/class.'.$className.'.php',
+			$eIDDir.'/eid.'.$className.'.php',
 			$file
 			);
 		
@@ -122,11 +122,12 @@ class tx_disckickstarter_section_eid extends tx_kickstarter_sectionbase {
 		
 		$this->wizard->ext_localconf[] = $this->sPS(
 			$this->WOPcomment('WOP:'.$WOP).chr(10).
+			'$TYPO3_CONF_VARS[\'FE\'][\'eID_include\'][\'tx_handelsfinans_faq_eid1\'] = \'EXT:\'.$_EXTKEY.\'/eid1/eid.tx_handelsfinans_faq.php\';'.
 			'$TYPO3_CONF_VARS[\'SC_OPTIONS\'][\'GLOBAL\'][\'cliKeys\'][$_EXTKEY] = array(\'EXT:\'.$_EXTKEY.\'/'.$cliDir.'/class.'.$className.'.php\',\'_CLI_'.$config['uName'].'\');',0);
 		
 	}
 	
-	function render_CLIClassFile($k,$config,$extKey){
+	function render_eIDClassFile($k,$config,$extKey){
 		
 		$file = trim($this->sPS('
 			<?php
@@ -173,96 +174,31 @@ class tx_disckickstarter_section_eid extends tx_kickstarter_sectionbase {
 		
 		$file .=trim($this->sPS('
 			
-			if (!defined(\'TYPO3_cliMode\'))  die(\'You cannot run this script directly!\');
+			require_once(\'class.ext_tslib_eidtools.php\');
 			
-			// Include basis cli class
-			require_once(PATH_t3lib.\'class.t3lib_cli.php\');
+			#tslib_eidtools::connectDb();
+			#ext_tslib_eidtools::cObjOnTSFE();
 			
+			class '.$this->returnName($extKey, 'fields','request_handler').'{
+				private $reply;
 			
-			/**
-			* Enter description here...
-			*
-			*/
-			class tx_cliexample_cli extends t3lib_cli {
-				
-				/**
-				* Constructor
-				*
-				* @return tx_cliexample_cli
-				*/
-				function tx_mfcarticletocontent_cli () {
+				public function __construct(){
 					
-					// Running parent class constructor
-					parent::t3lib_cli();
-					
-					// Setting help texts:
-					$this->cli_help[\'name\'] = "Name of script";
-					$this->cli_help[\'synopsis\'] = "###OPTIONS###";
-					$this->cli_help[\'description\'] = "Class with basic functionality for CLI scripts";
-					$this->cli_help[\'examples\'] = "/.../cli_dispatch.phpsh EXTKEY TASK";
-					$this->cli_help[\'author\'] = "Julian Kleinhans, (c) 2008";
 				}
 			
-				/**
-				* CLI engine
-				*
-				* @param    array        Command line arguments
-				* @return    string
-				*/
-				function cli_main($argv) {
+				public function handleRequest(){
 					
-					// get task (function)
-					$task = (string)$this->cli_args[\'_DEFAULT\'][1];
-					
-					if (!$task){
-						$this->cli_validateArgs();
-						$this->cli_help();
-						exit;
-					}
-					
-					if ($task == \'myFunction\') {
-						$this->cli_echo("\n\nmyFunction will be called:\n\n");
-						$this->myFunction();            
-					}
-					
-					/**
-					* Or other tasks
-					* Which task shoud be called can you define in the shell command
-					* /www/typo3/cli_dispatch.phpsh cli_example otherTask
-					*/
-					if ($task == \'otherTask\') {
-						// ...         
-					}
-				}
-				
-				/**
-				* myFunction which is called over cli
-				*
-				*/
-				function myFunction(){
-					
-					// Output
-					$this->cli_echo("Whats your name:");
-					
-					// Input
-					$input = $this->cli_keyboardInput();
-					$this->cli_echo("\n\nHi ".$input.", your CLI script works :)\n\n");
-					
-					// Input yes/no
-					$input = $this->cli_keyboardInput_yes(\'You want money?\');
-					if($b){
-						$this->cli_echo("\nHaha.. go working! :)\n");
-					}else{
-						$this->cli_echo("\nOh ok.. are you ill?\n");
-					}
 				}
 			
+			
+				public function get_reply(){
+					return $this->reply;
+				}
 			}
 			
-			// Call the functionality
-			$cleanerObj = t3lib_div::makeInstance(\'tx_cliexample_cli\');
-			$cleanerObj->cli_main($_SERVER[\'argv\']);
-			
+			$handler = new '.$this->returnName($extKey, 'fields','request_handler').'();
+			$handler->handleRequest();
+			echo $handler->get_reply();
 			
 			
 			?>
