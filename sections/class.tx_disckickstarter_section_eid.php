@@ -90,9 +90,9 @@ class tx_disckickstarter_section_eid extends tx_kickstarter_sectionbase {
 		#$cliPath = t3lib_basicFileFunctions::cleanFileName($config['cName']);
 		$eIDDir = 'eid'.$k;
 		
-		$className = 'tx_'.$extKey.'_eid'.$k;
+		//$className = 'tx_'.$extKey.'_eid'.$k;
 		
-		
+		$className = $this->returnName($extKey, 'fields', 'eid'.$k);
 		
 		
 		#$pathSuffix = 'static/'.$tsPath.'/';
@@ -122,8 +122,7 @@ class tx_disckickstarter_section_eid extends tx_kickstarter_sectionbase {
 		
 		$this->wizard->ext_localconf[] = $this->sPS(
 			$this->WOPcomment('WOP:'.$WOP).chr(10).
-			'$TYPO3_CONF_VARS[\'FE\'][\'eID_include\'][\'tx_handelsfinans_faq_eid1\'] = \'EXT:\'.$_EXTKEY.\'/eid1/eid.tx_handelsfinans_faq.php\';'.
-			'$TYPO3_CONF_VARS[\'SC_OPTIONS\'][\'GLOBAL\'][\'cliKeys\'][$_EXTKEY] = array(\'EXT:\'.$_EXTKEY.\'/'.$cliDir.'/class.'.$className.'.php\',\'_CLI_'.$config['uName'].'\');',0);
+			'$TYPO3_CONF_VARS[\'FE\'][\'eID_include\'][\''.$className.'\'] = \'EXT:\'.$_EXTKEY.\'/'.$eIDDir.'/eid.'.$className.'.php\';',0);
 		
 	}
 	
@@ -166,7 +165,7 @@ class tx_disckickstarter_section_eid extends tx_kickstarter_sectionbase {
 			 *
 			 * @author	'.$this->userField('name').' <'.$this->userField('email').'>
 			 * @package	TYPO3
-			 * @subpackage	'. $this->returnName($extKey, 'class') .'
+			 * @subpackage	'. $this->returnName($extKey, 'fields','request_handler') .'
 			 */',
 			0
 		));
@@ -174,7 +173,7 @@ class tx_disckickstarter_section_eid extends tx_kickstarter_sectionbase {
 		
 		$file .=trim($this->sPS('
 			
-			require_once(\'class.ext_tslib_eidtools.php\');
+			#require_once(\'class.ext_tslib_eidtools.php\');
 			
 			#tslib_eidtools::connectDb();
 			#ext_tslib_eidtools::cObjOnTSFE();
@@ -205,22 +204,8 @@ class tx_disckickstarter_section_eid extends tx_kickstarter_sectionbase {
 			',
 			0
 		));
-			
-			
-		
-		
-
-
-
-		
-		
-		
-		
-		
 		
 		return $file;
-		
-		
 	}
 	
 	
